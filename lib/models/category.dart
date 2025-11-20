@@ -14,8 +14,6 @@ enum Categories{
   other,
   }
 
-
-
 //class categories
 class Category {
     const Category(this.title,this.color);
