@@ -58,7 +58,13 @@ class _NewItemState extends State<NewItem>{
                       )
                   ], onChanged: (value){}),
                 ),
-              ])
+              ]),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                TextButton(onPressed: () {}, child: Text("Reset")),
+                ElevatedButton(onPressed: () {}, child: Text ("Add Item")),
+              ],)
             ],
           )
         )
