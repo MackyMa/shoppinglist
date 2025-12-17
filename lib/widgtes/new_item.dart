@@ -11,6 +11,7 @@ class NewItem extends StatefulWidget{
 }
 
 class _NewItemState extends State<NewItem>{
+  @override
   Widget build(BuildContext context)
   {
     return Scaffold(
@@ -26,6 +27,10 @@ class _NewItemState extends State<NewItem>{
                 decoration: InputDecoration(
                   label: Text('Name')),
                   validator: (value) {
+                    if(value==null || value.isEmpty || value.length>50 || value.length<=1)
+                    {
+                      return 'Must have a name between 2 and 50 characters.';
+                    }
                     return null;
                   },
                 ),
@@ -38,7 +43,14 @@ class _NewItemState extends State<NewItem>{
                       label: Text('Quantity')
                       ),
                       initialValue: '1',
-                  ),
+                      validator: (value) {
+                        if(value==null || value.isEmpty || int.tryParse(value) == null || int.tryParse(value)!<=0)
+                        {
+                          return 'Must Enter a quantity greater than 0';
+                        }
+                        return null;
+                      },
+                    ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
