@@ -11,6 +11,7 @@ class NewItem extends StatefulWidget{
 }
 
 class _NewItemState extends State<NewItem>{
+  
   final _formKey = GlobalKey<FormState>();
   var _enteredName = '';
   var _enteredQuantity = 1;
@@ -20,11 +21,14 @@ class _NewItemState extends State<NewItem>{
     if (_formKey.currentState!.validate())
     {
     _formKey.currentState!.save();
-    print (_enteredName);
-    print(_enteredQuantity);
-    print(_selectedCategory.title);
+
     Navigator.of(context).pop(
-      GroceryItem(id: DateTime.now().toString(), name: _enteredName, quantity: _enteredQuantity, category: _selectedCategory)
+      GroceryItem(
+       id: DateTime.now().toString(),
+       name: _enteredName,
+       quantity: _enteredQuantity,
+       category: _selectedCategory
+         )
       );
     }
  }

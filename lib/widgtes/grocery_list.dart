@@ -25,11 +25,46 @@ class _GrocerylistState extends State<Grocerylist> {
         _groceryItems.add(newItem);
       }
   }
-  
+
+  void _removeItem(GroceryItem item){
+    setState(() {
+       _groceryItems.remove(item);
+    });
+    for(var i = 0; i < _groceryItems.length; i++)
+    {
+      print(_groceryItems[i].name);
+    }
+  }
 
   @override
   Widget build(BuildContext context) 
   {
+    Widget context = const Center(child: Text("Please Click the + Button to add an item"));
+    if (_groceryItems.isNotEmpty)
+    {
+      context = ListView.builder(
+        itemCount: _groceryItems.length,
+        itemBuilder:(ctx,index)=>Dismissible(
+          onDismissed: (direction) {
+            _removeItem(_groceryItems[index]);
+          },
+          key: ValueKey(_groceryItems[index].id),
+          child: ListTile(
+            leading: Container(
+              width: 24,
+              height: 24,
+              color: _groceryItems[index].category.color,
+            ),
+            title: Text(_groceryItems[index].name),
+            trailing: Text(_groceryItems[index].quantity.toString())
+          ),
+        )
+      );
+    }
+     
+    
+
+
     return Scaffold(
       appBar: AppBar(
         title: const Text ("Your Groceries"),
@@ -40,20 +75,7 @@ class _GrocerylistState extends State<Grocerylist> {
           ),
         ],
       ),
-      body:ListView.builder(
-        itemCount: _groceryItems.length,
-        itemBuilder:(ctx,index)=>ListTile(
-          leading: Container(
-            width: 24,
-            height: 24,
-            color: _groceryItems[index].category.color,
-          ),
-          title: Text(_groceryItems[index].name),
-          trailing: Text(_groceryItems[index].quantity.toString())
-        )
-
-
-      )
+      body: context,
     );
   }
 }
