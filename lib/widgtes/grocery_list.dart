@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shoppinglist/data/categories.dart';
 import 'package:shoppinglist/data/dummy_items.dart';
 import 'package:shoppinglist/models/groceryitem.dart';
 import 'package:shoppinglist/widgtes/new_item.dart';
@@ -11,19 +15,55 @@ class Grocerylist extends StatefulWidget{
 }
 
 class _GrocerylistState extends State<Grocerylist> {
-  final List<GroceryItem> _groceryItems = [];
+   List<GroceryItem> _groceryItems = [];
+   var _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadItems();
+  }
+
+  void _loadItems() async {
+     final url = Uri.https (
+        'shopping-list-93998-default-rtdb.firebaseio.com',
+        'shopping-list.json',
+      );
+      final response = await http.get(url);
+      //print (response.body);
+      final Map<String,dynamic> listData = json.decode(response.body);
+      final List<GroceryItem> loadedItems = [];
+      for(final item in listData.entries)
+      {
+        final currentCat = categories.entries.firstWhere(
+          (catItem) => catItem.value.title == item.value['category'],
+        ).value;
+        loadedItems.add(
+          GroceryItem(
+            id: item.key,
+            name: item.value['name'],
+            quantity: item.value['quantity'],
+            category: currentCat,
+           ),
+        );
+      }
+      setState(() {
+        _groceryItems= loadedItems;
+        _isLoading = false;
+      });
+  }
 
   void _addItem() async{
     final newItem = await Navigator.of(
       context,
       ).push<GroceryItem>(MaterialPageRoute(builder: (ctx)=> const NewItem()));
-      if (newItem == null)
-      {
-        return;
-      }
-      else{
-        _groceryItems.add(newItem);
-      }
+    if(newItem != null)
+    {
+      return;
+    }
+    setState(() {
+      _groceryItems.add(newItem!);
+    });
   }
 
   void _removeItem(GroceryItem item){
@@ -40,8 +80,11 @@ class _GrocerylistState extends State<Grocerylist> {
   Widget build(BuildContext context) 
   {
     Widget context = const Center(child: Text("Please Click the + Button to add an item"));
-    if (_groceryItems.isNotEmpty)
+    if(_isLoading)
     {
+      context = const Center(child: CircularProgressIndicator());
+    }
+    if (_groceryItems.isNotEmpty) {
       context = ListView.builder(
         itemCount: _groceryItems.length,
         itemBuilder:(ctx,index)=>Dismissible(

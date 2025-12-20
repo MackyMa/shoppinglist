@@ -33,13 +33,19 @@ class _NewItemState extends State<NewItem>{
         'category':_selectedCategory.title,
       }),
     );
-    print (response.body);
-    print (response.statusCode);
+    final Map<String,dynamic> resData = json.decode(response.body);
     if (!context.mounted) 
     {
       return;
     }
-    Navigator.of(context).pop(); 
+    Navigator.of(context).pop(
+      GroceryItem(
+        id: resData['name'],
+        name: _enteredName,
+        quantity: _enteredQuantity,
+        category: _selectedCategory,
+      )
+    ); 
     }
  }
 
@@ -75,7 +81,7 @@ class _NewItemState extends State<NewItem>{
                 children: [
                 Expanded(
                   child: TextFormField(
-                    keyboardAppearance: TextInputType.number,
+                    keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       label: Text('Quantity')
                       ),
@@ -97,7 +103,7 @@ class _NewItemState extends State<NewItem>{
                   child: DropdownButtonFormField(
                     initialValue: _selectedCategory,
                     items: [
-                    for(final category in Categories.entries)
+                    for(final category in categories.entries)
                       DropdownMenuItem(
                         value: category.value,
                         child: Row(children: [
@@ -107,7 +113,7 @@ class _NewItemState extends State<NewItem>{
                           color: category.value.color,
                         ),
                         const SizedBox(width: 6),
-                        Text(category.value.name),
+                        Text(category.value.title),
                       ],),
                       )
                   ], 
