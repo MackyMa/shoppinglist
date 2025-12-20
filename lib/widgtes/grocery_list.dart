@@ -17,6 +17,7 @@ class Grocerylist extends StatefulWidget{
 class _GrocerylistState extends State<Grocerylist> {
    List<GroceryItem> _groceryItems = [];
    var _isLoading = true;
+   String? _error = "";
 
   @override
   void initState() {
@@ -31,6 +32,14 @@ class _GrocerylistState extends State<Grocerylist> {
       );
       final response = await http.get(url);
       //print (response.body);
+      if(response.statusCode >= 400)
+      {
+        setState(() {
+          _error = "Failed to fetch data. Please try again later!";
+          _isLoading = false;
+        });
+        return;
+      }
       final Map<String,dynamic> listData = json.decode(response.body);
       final List<GroceryItem> loadedItems = [];
       for(final item in listData.entries)
@@ -66,14 +75,26 @@ class _GrocerylistState extends State<Grocerylist> {
     });
   }
 
-  void _removeItem(GroceryItem item){
+  void _removeItem(GroceryItem item) async{
+    final index = _groceryItems.indexOf(item);
     setState(() {
-       _groceryItems.remove(item);
+      _groceryItems.remove(item);
     });
-    for(var i = 0; i < _groceryItems.length; i++)
+    final url = Uri.https(
+      'shopping-list-93998-default-rtdb.firebaseio.com',
+      'shopping-list/${item.id}.json',
+    );
+    var response = await http.delete(url);
+    if(response.statusCode >= 400)
+    {
+      setState(() {
+        _groceryItems.insert(index,item);
+      });
+    }
+    /*for(var i = 0; i < _groceryItems.length; i++)
     {
       print(_groceryItems[i].name);
-    }
+    }*/
   }
 
   @override
@@ -83,6 +104,10 @@ class _GrocerylistState extends State<Grocerylist> {
     if(_isLoading)
     {
       context = const Center(child: CircularProgressIndicator());
+    }
+    if(_error != null)
+    {
+      context = Center(child: Text(_error!));
     }
     if (_groceryItems.isNotEmpty) {
       context = ListView.builder(
@@ -105,9 +130,6 @@ class _GrocerylistState extends State<Grocerylist> {
       );
     }
      
-    
-
-
     return Scaffold(
       appBar: AppBar(
         title: const Text ("Your Groceries"),
